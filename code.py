@@ -19,7 +19,7 @@ def ask_length(message):
     bot.reply_to(message, "Enter the length of the password you want to generate.")
 
 @bot.message_handler(commands=['check'])
-def ask_length(message):
+def ask_password(message):
     user_state[message.chat.id] = 'asking_password'
     bot.reply_to(message, "Enter the password you want to check.")
 
