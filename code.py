@@ -37,9 +37,20 @@ def reply(message):
         bot.reply_to(message, "try again")
 
 def generate(message):
-    bot.reply_to(message, "In process.")
+    try:
+        length = int(message.text)
+    except ValueError:
+        bot.reply_to(message, "This is not a number, try agin")
+        return
+    if length > 128 or length < 4:
+        bot.reply_to(message, "Please enter a number between 4 and 128")
+        return
+    
+    characters = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(random.choice(characters) for _ in range(length))
+    bot.reply_to(message, f"Here's your password:\n`{password}`", parse_mode="Markdown")
 
 def check(message):
-    bot.reply_to(message, "In process...")
+    bot.reply_to(message, "This function is in process")
 
 bot.infinity_polling() 
