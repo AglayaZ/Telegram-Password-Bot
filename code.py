@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from zxcvbn import zxcvbn
 import os
 import telebot 
 import random
@@ -51,6 +52,16 @@ def generate(message):
     bot.reply_to(message, f"Here's your password:\n`{password}`", parse_mode="Markdown")
 
 def check(message):
-    bot.reply_to(message, "This function is in process")
+    password = message.text
+    result = zxcvbn(password)
+    if result["score"] == 1:
+        strength = "very weak"
+    elif result["score"] == 2:
+        strength = "weak"
+    elif result["score"] == 3:
+        strength = "strong"
+    else:
+        strength = "very strong"
+    bot.reply_to(message, f"Your password is {strength} with crack time {result["crack_times_display"]["offline_fast_hashing_1e10_per_second"]}")
 
 bot.infinity_polling() 
