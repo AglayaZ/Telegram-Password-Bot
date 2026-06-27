@@ -1,10 +1,11 @@
 # Telegram Password Bot
 
-A simple Telegram bot that generates random passwords and checks how strong a password is.
+A simple Telegram bot that generates random or memorable passwords and checks how strong a password is.
 
 ## Features
 
-- **/generate** — generates a random password of a length you choose (letters, digits, and symbols)
+- **/generaterandom** — generates a random password of a length you choose (letters, digits, and symbols)
+-  **/generatememorable** — generates a memorable password with the amount of words you choose 
 - **/check** — analyzes a password and tells you how strong it is, using [zxcvbn](https://github.com/dropbox/zxcvbn), with an estimated crack time and suggestions for improvement
 
 ## Setup
