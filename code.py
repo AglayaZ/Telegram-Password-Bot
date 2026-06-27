@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from zxcvbn import zxcvbn
+from xkcdpass import xkcd_password as xp 
 import os
 import telebot 
 import random
@@ -9,15 +10,21 @@ bot_token = os.getenv("BOT_TOKEN")
 
 bot = telebot.TeleBot(bot_token)
 user_state = {}
+words = xp.generate_wordlist(wordfile=xp.locate_wordfile(), min_length=4, max_length=8)
 
 @bot.message_handler(commands=['start'])
 def welcomemessage(message):
-    bot.reply_to(message, "Hello, this bot can generate or check the stregth of your passwords. Choose /check or /generate to continue.")
+    bot.reply_to(message, "Hello, this bot can generate a password(random or memorable) or check he stregth of your pastswords. Choose /check or /generaterandom or /generatememorable to continue.")
 
-@bot.message_handler(commands=['generate'])
+@bot.message_handler(commands=['generaterandom'])
 def ask_length(message):
     user_state[message.chat.id] = 'asking_length'
     bot.reply_to(message, "Enter the length of the password you want to generate.")
+
+@bot.message_handler(commands=['generatememorable'])
+def ask_words(message):
+    user_state[message.chat.id] = 'asking_wordcount'
+    bot.reply_to(message, "Enter the number of words in the password you want to generate.")
 
 @bot.message_handler(commands=['check'])
 def ask_password(message):
@@ -29,7 +36,10 @@ def reply(message):
     chat_id = message.chat.id
     state = user_state.get(chat_id)
     if state == "asking_length":
-        generate(message)
+        generaterandom(message)
+        user_state[chat_id] = None
+    elif state == "asking_wordcount":
+        generatememorable(message)
         user_state[chat_id] = None
     elif state == "asking_password":
         check(message)
@@ -37,7 +47,7 @@ def reply(message):
     else:
         bot.reply_to(message, "try again")
 
-def generate(message):
+def generaterandom(message):
     try:
         length = int(message.text)
     except ValueError:
@@ -49,6 +59,19 @@ def generate(message):
     
     characters = string.ascii_letters + string.digits + string.punctuation
     password = ''.join(random.choice(characters) for _ in range(length))
+    bot.reply_to(message, f"Here's your password:\n`{password}`", parse_mode="Markdown")
+
+def generatememorable(message):
+    try:
+        length = int(message.text)
+    except ValueError:
+        bot.reply_to(message, "This is not a number, try agin")
+        return
+    if length > 8 or length < 4:
+        bot.reply_to(message, "Please enter a number between 4 and 8")
+        return
+    
+    password = xp.generate_xkcdpassword(words, numwords=4, delimiter='-')
     bot.reply_to(message, f"Here's your password:\n`{password}`", parse_mode="Markdown")
 
 def check(message):
