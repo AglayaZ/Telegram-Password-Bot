@@ -5,6 +5,8 @@ import os
 import telebot 
 import random
 import string
+import hashlib
+import requests
 load_dotenv()
 bot_token = os.getenv("BOT_TOKEN")
 
@@ -77,14 +79,33 @@ def generatememorable(message):
 def check(message):
     password = message.text
     result = zxcvbn(password)
-    if result["score"] == 1:
+    hashed = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
+    prefix = hashed[:5]
+    suffix = hashed[5:]
+    response = requests.get(f"https://api.pwnedpasswords.com/range/{prefix}")
+    found = 0
+    for line in response.text.splitlines():
+        hashedsuffix, count = line.split(":")
+        if hashedsuffix == suffix:
+           found = count 
+           break
+    if result["score"] == 0:
         strength = "very weak"
-    elif result["score"] == 2:
+    elif result["score"] == 1:
         strength = "weak"
+    elif result["score"] == 2:
+        strength = "fair"
     elif result["score"] == 3:
         strength = "strong"
     else:
         strength = "very strong"
-    bot.reply_to(message, f"Your password is {strength} with crack time {result["crack_times_display"]["offline_fast_hashing_1e10_per_second"]}")
+    
+    cracktime = result["crack_times_display"]["offline_fast_hashing_1e10_per_second"]
+    bot.reply_to(message, f"Your password is {strength} with crack time {cracktime}")
+   
+    if found != 0:
+        bot.reply_to(message, f"This password has appeared in {found} known data breaches. Avoid using it.")
+    else:
+        bot.reply_to(message, "This password did not appear in known data breaches")
 
 bot.infinity_polling() 
