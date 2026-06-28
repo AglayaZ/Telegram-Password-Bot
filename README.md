@@ -6,7 +6,9 @@ A simple Telegram bot that generates random or memorable passwords and checks ho
 
 - **/generaterandom** — generates a random password of a length you choose (letters, digits, and symbols)
 -  **/generatememorable** — generates a memorable password with the amount of words you choose 
-- **/check** — analyzes a password and tells you how strong it is, using [zxcvbn](https://github.com/dropbox/zxcvbn), with an estimated crack time and suggestions for improvement
+- **/check** — analyzes a password and tells you:
+  - how strong it is, using [zxcvbn](https://github.com/dropbox/zxcvbn), with an estimated crack time
+  - whether it's appeared in known data breaches, using the [Have I Been Pwned](https://haveibeenpwned.com/API/v3#PwnedPasswords) Pwned Passwords API (your password is never sent in plain text — only a partial hash, using k-anonymity)
 
 ## Setup
 
